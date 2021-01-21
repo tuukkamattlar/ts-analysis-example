@@ -7,6 +7,6 @@ Given the data, we might first want to see what it looks like
 
 Seems like we have a clear season of 24hours and a slight echo to 7 days
 We then differentiate the data according to 24h and with further considerations with
-![ACF and PACF](pacfacf.png)
+![ACF and PACF](pacfacfOnce.png)
 
 
