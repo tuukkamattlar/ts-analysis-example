@@ -2,18 +2,9 @@ setwd("C:/Users/tuukk/Documents/Repos/Time-series-analysis-Wolt-internship-2021"
 
 library(forecast)
 library(TSPred)
-library(tseries)
-library(ggplot2)
-library(xts)
-library(fma)
-library(expsmooth)
-library(lmtest)
-library(zoo)
-library(fpp)
 library(lubridate)
 library(nlme)
 library(mgcv)
-library(car)
 
 dataset = read.table(file = "orders_autumn_2020.csv",
                      sep = ",",
@@ -116,6 +107,7 @@ plot(decompose(tsData[,3]))
 acf(tsData[,3], lag.max = 48*10, xlab="Lag in hours", na.action = na.pass, main="ACF over longer period")
 #we see acf highly correlating at around 48 units (that is 24h and slightly at a range of one week)
 #however, it seems like there s a correlation between 7 days thus the day of the week plays a role
+#we might have to skip this tho since the tool allows only certainly short seasons
 acf(tsData[,3], lag.max = 48*2, xlab="Lag in hours", na.action = na.pass, main="ACF over 2 days")
 #clear correlation of 24 hours
 pacf(tsData[,3], lag.max = 48*10, main="PACF", na.action = na.pass) 
@@ -124,7 +116,7 @@ pacf(tsData[,3], lag.max = 48, main="PACF", na.action = na.pass)
 #same here
 
 ## thus setting:
-s = 48*7
+s = 48
 
 #diff for the chosen s to see other info
 tsDataDiff = diff(tsData[,3], lag = s, differences = 1)
@@ -133,9 +125,10 @@ pacf(tsDataDiff, lag.max = 24*20, main="PACF of once 24-diff data", na.action = 
 
 #also diff for 1 to see if non-serial modeling is clever 
 tsDataDiffDiff = diff(tsDataDiff, lag = 1, differences = 1)
+par(mfrow=c(2,1))
 acf(tsDataDiffDiff, lag.max = 24*20, main="ACF of 1&24-diff data", na.action = na.pass)
 pacf(tsDataDiffDiff, lag.max = 24*20, main="PACF of 1&24-diff data", na.action = na.pass)
-
+par(mfrow=c(1,1))
 #based on the gaphs above we might want to consider following parameters for 
 #SARIMA(p,d,q)(P,D,Q)[s]
 # s already done
@@ -158,16 +151,16 @@ tsModelAuto
 #seems to have quite irrelevant sar2 and sar2
 #could be better..
 
-#testing SARIMA(p,d,q)(P,D,Q)[24*7] based on the ACF and PACF plots before
-# season is to be set to 24*7 since 24h would miss out on weekdays
-tsModel = arima(tsData[,3], order= c(p,d,q), seasonal=list(order = c(P, D, Q), period = 48), method = "CSS")
+#testing SARIMA(p,d,q)(P,D,Q)[24] based on the ACF and PACF plots before
+# season is to be set to 48 which is equivivalent to 24 here
+tsModel = arima(tsData[,3], order= c(p,d,q), seasonal=list(order = c(P, D, Q), period = s), method = "CSS")
 tsModel
 tsModel.prediction = forecast(tsModel, h=48*2)
 plot(tsModel.prediction, xlim=c(1300,1500), ylim=c(0,30))
 #all seems pretty good!
 
 tsModel.prediction = forecast(tsModel, h=48*2)
-plot(tsModel.prediction, xlim=c(1300,1500), ylim=c(0,25))
+plot(tsModel.prediction, xlim=c(1300,1500), ylim=c(0,25), ylab="Orders within each 30 minutes")
 #the model does not cover night times as well as the one with higher degree of p and P. Tho it's a simpler model thus should be relied with it's quite as good performance
 
 
@@ -184,7 +177,7 @@ f_len = 24*7
 
 #prepare data for better handling
 tsModel.prediction = forecast(tsModel, h=f_len*2)
-plot(tsModel.prediction)
+plot(tsModel.prediction, xlim=c(1000,1610), ylab="Orders within each 30 minutes")
 forecast_time = df$TimeStart[length(df$TimeStart)] + aMinute*30
 as_datetime(forecast_time)
 
