@@ -1,5 +1,3 @@
-setwd("C:/Users/tuukk/Documents/Repos/Time-series-analysis-Wolt-internship-2021")
-
 library(forecast)
 library(TSPred)
 library(lubridate)
