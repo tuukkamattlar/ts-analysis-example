@@ -3,4 +3,4 @@ A brief time series analysis based on order data
 
 Given the data, we might first want to see what it looks like
 
-![](decomposition.png)
+![Decomposition of the data](decomposition.png)
