@@ -24,6 +24,12 @@ Therefore we use SARIMA(1,0,1)(1,1,2)[24]
 
 This model gives following visual forecasts
 
-![ACF and PACF](forecast_sr.png)
+![ACF and PACF](forcast_sr.png)
 
 ![ACF and PACF](forecast_lr.png)
+
+Given these we might have some simple estimates for the number of orders for each 30 minute ranges.
+
+Given this we should be getting 329 orders during the following 24h after the data ends. With 80% of probability the true value should be between 206 and 541.
+
+For an estimate over one week, the value should be approx 2279 orders in total. This again with 80% probability between 1426 and 3800.
