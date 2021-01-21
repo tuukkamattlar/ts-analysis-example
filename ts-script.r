@@ -120,12 +120,13 @@ s = 48
 
 #diff for the chosen s to see other info
 tsDataDiff = diff(tsData[,3], lag = s, differences = 1)
+par(mfrow=c(2,1))
 acf(tsDataDiff, lag.max = 24*20, main="ACF of once 24-diff data", na.action = na.pass)
 pacf(tsDataDiff, lag.max = 24*20, main="PACF of once 24-diff data", na.action = na.pass)
 
 #also diff for 1 to see if non-serial modeling is clever 
 tsDataDiffDiff = diff(tsDataDiff, lag = 1, differences = 1)
-par(mfrow=c(2,1))
+
 acf(tsDataDiffDiff, lag.max = 24*20, main="ACF of 1&24-diff data", na.action = na.pass)
 pacf(tsDataDiffDiff, lag.max = 24*20, main="PACF of 1&24-diff data", na.action = na.pass)
 par(mfrow=c(1,1))
@@ -135,7 +136,7 @@ par(mfrow=c(1,1))
 #for p it would likely be clever to select 1 since the PACF for further spikes tends to be quite small already the first being the value itself
 p = 1
 #for d we set 1 since we diff once for one step
-d = 1
+d = 0
 #two remarkable spikes in ACF
 q = 2
 #for P it would likely be clever to select 1 since the PACF for further seasonal spikes tends to be quite small
@@ -155,9 +156,15 @@ tsModelAuto
 # season is to be set to 48 which is equivivalent to 24 here
 tsModel = arima(tsData[,3], order= c(p,d,q), seasonal=list(order = c(P, D, Q), period = s), method = "CSS")
 tsModel
+
+#seems like ma2 is very small. let's remove if for the sake of simplicity
+q = 1
+tsModel = arima(tsData[,3], order= c(p,d,q), seasonal=list(order = c(P, D, Q), period = s), method = "CSS")
+tsModel
+
 tsModel.prediction = forecast(tsModel, h=48*2)
 plot(tsModel.prediction, xlim=c(1300,1500), ylim=c(0,30))
-#all seems pretty good!
+#all seems pretty good now
 
 tsModel.prediction = forecast(tsModel, h=48*2)
 plot(tsModel.prediction, xlim=c(1300,1500), ylim=c(0,25), ylab="Orders within each 30 minutes")
@@ -204,17 +211,17 @@ for (i_f in 1:(aWeek/stepSize)) {
 
 # THE NUMBER OF ORDERS DURING THE FOLLOWING 24h:
 sum(df_forecast$Orders_sum[1:48])
-#predicting a total of 324 orders during the next week
+#predicting a total of 329 orders during the next week
 sum(df_forecast$Orders_upper80[1:48])
-#80% likely there will be less than 540 orders next week
+#80% likely there will be less than 541 orders next week
 sum(df_forecast$Orders_lower80[1:48])
-#and 80% likely of over 202 orders
+#and 80% likely of over 206 orders
 
 # THE NUMBER OF ORDERS DURING THE FOLLOWING WEEK:
 sum(df_forecast$Orders_sum)
-#predicting a total of 2247 orders during the next week
+#predicting a total of 2279 orders during the next week
 sum(df_forecast$Orders_upper80)
-#80% likely there will be less than 4012 orders next week
+#80% likely there will be less than 3800 orders next week
 sum(df_forecast$Orders_lower80)
-#and 80% likely of over 1279 orders
+#and 80% likely of over 1426 orders
 
